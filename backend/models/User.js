@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     imageUrl: { type: String },
     enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
   },
-  { timeStamps: true }
+  { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);
