@@ -5,16 +5,14 @@ export const clerkWebhooks = async (req, res) => {
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
     console.log(process.env.CLERK_WEBHOOK_SECRET);
 
-    try {
+    
       await whook.verify(JSON.stringify(req.body), {
         "svix-id": req.headers["svix-id"],
         "svix-timestamp": req.headers["svix-timestamp"],
         "svix-signature": req.headers["svix-signature"],
       });
       console.log("Webhook verified successfully!");
-    } catch (error) {
-      console.error("Webhook verification failed:", error);
-    }
+    
 
     console.log(req.headers);
 
@@ -52,6 +50,8 @@ export const clerkWebhooks = async (req, res) => {
         res.json();
         break;
     }
+
+    console.log("first lorem..........");
   } catch (e) {
     console.log(e);
     res.json({ success: false, message: e.message });
