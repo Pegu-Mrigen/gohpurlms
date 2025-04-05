@@ -2,19 +2,35 @@ import { Webhook } from "svix";
 import User from "../models/User.js";
 export const clerkWebhooks = async (req, res) => {
   try {
-    const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+
+    const webhookSecret="whsec_KezW0VmXL914EyXxWbEIFVEb8yRvW8U3"
+    // const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    const whook = new Webhook(webhookSecret);
     console.log(process.env.CLERK_WEBHOOK_SECRET);
-
-    
-      await whook.verify(JSON.stringify(req.body), {
-        "svix-id": req.headers["svix-id"],
-        "svix-timestamp": req.headers["svix-timestamp"],
-        "svix-signature": req.headers["svix-signature"],
-      });
-      console.log("Webhook verified successfully!");
-    
-
     console.log(req.headers);
+
+
+try {
+    const payload = JSON.stringify(req.body);
+    const headers = {
+      "svix-id": req.headers["svix-id"] || "",
+      "svix-timestamp": req.headers["svix-timestamp"] || "",
+      "svix-signature": req.headers["svix-signature"] || ""
+  };
+
+  if(!headers){
+    
+    res.json("NO HEADERS")
+
+
+  }
+    whook.verify(payload, headers);
+    console.log('Webhook verified successfully!');
+} catch (error) {
+    console.error('Webhook verification failed:', error.message);
+    return res.status(400).json({ success: false, message: 'Invalid webhook signature' });
+}
+
 
     const { data, type } = req.body;
 
@@ -31,6 +47,7 @@ export const clerkWebhooks = async (req, res) => {
         await User.create(userData);
 
         res.json({});
+        break;
       }
       case "user.updated": {
         const userData = {
@@ -40,18 +57,19 @@ export const clerkWebhooks = async (req, res) => {
         };
         await User.findByIdAndUpdate(data.id, userData);
         res.json({});
+        break;
       }
 
       case "user.deleted": {
         await User.findByIdAndDelete(data.id);
         res.json();
+        break;
       }
       default:
+        console.log("first lorem..........");
         res.json();
         break;
     }
-
-    console.log("first lorem..........");
   } catch (e) {
     console.log(e);
     res.json({ success: false, message: e.message });
