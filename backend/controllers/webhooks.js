@@ -3,17 +3,25 @@ import User from "../models/User.js";
 export const clerkWebhooks = async (req, res) => {
   try {
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    console.log(process.env.CLERK_WEBHOOK_SECRET);
 
-    await whook.verify(JSON.stringify(req.body), {
-      "svix-id": req.headers["svix-id"],
-      "svix-timestamp": req.headers["svix-timestamp"],
-      "svix-signature": req.headers["svix-signature"],
-    });
+    try {
+      await whook.verify(JSON.stringify(req.body), {
+        "svix-id": req.headers["svix-id"],
+        "svix-timestamp": req.headers["svix-timestamp"],
+        "svix-signature": req.headers["svix-signature"],
+      });
+      console.log("Webhook verified successfully!");
+    } catch (error) {
+      console.error("Webhook verification failed:", error);
+    }
+
+    console.log(req.headers);
 
     const { data, type } = req.body;
 
-    console.log(data, type)
- 
+    console.log(data, type);
+
     switch (type) {
       case "user.created": {
         const userData = {
@@ -25,7 +33,6 @@ export const clerkWebhooks = async (req, res) => {
         await User.create(userData);
 
         res.json({});
-        
       }
       case "user.updated": {
         const userData = {
@@ -35,13 +42,11 @@ export const clerkWebhooks = async (req, res) => {
         };
         await User.findByIdAndUpdate(data.id, userData);
         res.json({});
-        
       }
 
       case "user.deleted": {
         await User.findByIdAndDelete(data.id);
         res.json();
-        
       }
       default:
         res.json();

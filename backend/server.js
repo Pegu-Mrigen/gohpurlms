@@ -9,6 +9,7 @@ const app = express();
 await connectDB();
 
 app.use(cors());
+app.use(express.json());
 
 app.get("/", (req, res) => {
   console.log("first lorem..........");
