@@ -12,6 +12,8 @@ export const clerkWebhooks = async (req, res) => {
 
     const { data, type } = req.body;
 
+    console.log(data, type)
+ 
     switch (type) {
       case "user.created": {
         const userData = {
@@ -23,7 +25,7 @@ export const clerkWebhooks = async (req, res) => {
         await User.create(userData);
 
         res.json({});
-        break;
+        
       }
       case "user.updated": {
         const userData = {
@@ -33,15 +35,16 @@ export const clerkWebhooks = async (req, res) => {
         };
         await User.findByIdAndUpdate(data.id, userData);
         res.json({});
-        break;
+        
       }
 
       case "user.deleted": {
         await User.findByIdAndDelete(data.id);
-        res.json({});
-        break;
+        res.json();
+        
       }
       default:
+        res.json();
         break;
     }
   } catch (e) {
