@@ -20,8 +20,8 @@ export const clerkWebhooks = async (req, res) => {
         res.json("NO HEADERS");
       }
 
+      let evt;
       try {
-        let evt;
         evt = whook.verify(payload, headers);
         console.log("Webhook verified successfully!");
       } catch (e) {
