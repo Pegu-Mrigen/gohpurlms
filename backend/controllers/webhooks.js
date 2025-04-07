@@ -2,9 +2,9 @@ import { Webhook } from "svix";
 import User from "../models/User.js";
 export const clerkWebhooks = async (req, res) => {
   try {
-    const webhookSecret = "whsec_ct2NJFEKDzIhl0a3Hq309wt9HcfGbLXh";
-    // const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-    const whook = new Webhook(webhookSecret);
+    //const webhookSecret = "whsec_ct2NJFEKDzIhl0a3Hq309wt9HcfGbLXh";
+    const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    //const whook = new Webhook(webhookSecret);
     console.log(process.env.CLERK_WEBHOOK_SECRET);
     console.log(req.headers);
 
@@ -21,11 +21,18 @@ export const clerkWebhooks = async (req, res) => {
       }
 
       let evt;
+
+      console.log(evt)
       try {
         evt = whook.verify(payload, headers);
         console.log("Webhook verified successfully!");
+        console.log(evt)
+
       } catch (e) {
         console.log(e);
+        res
+          .status(400)
+          .json({ success: false, message: "verified faillllddd!" });
       }
     } catch (error) {
       console.error("Webhook verification failed:", error.message);
@@ -34,9 +41,11 @@ export const clerkWebhooks = async (req, res) => {
         .json({ success: false, message: "Invalid webhook signature" });
     }
 
-    const { data, type } = req.body || {};
+    const { data, type } = req.body;
 
     console.log(data, type);
+    console.log(evt)
+
 
     switch (evt?.type) {
       case "user.created": {
