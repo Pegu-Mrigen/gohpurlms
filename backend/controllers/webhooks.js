@@ -22,12 +22,11 @@ export const clerkWebhooks = async (req, res) => {
 
       let evt;
 
-      console.log(evt)
+      console.log(evt);
       try {
         evt = whook.verify(payload, headers);
         console.log("Webhook verified successfully!");
-        console.log(evt)
-
+        console.log(evt);
       } catch (e) {
         console.log(e);
         res
@@ -44,8 +43,7 @@ export const clerkWebhooks = async (req, res) => {
     const { data, type } = req.body;
 
     console.log(data, type);
-    console.log(evt)
-
+    console.log(evt);
 
     switch (evt?.type) {
       case "user.created": {
