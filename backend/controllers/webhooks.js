@@ -20,8 +20,8 @@ export const clerkWebhooks = async (req, res) => {
         res.json("NO HEADERS");
       }
 
-      let evt;
       try {
+        let evt;
         evt = whook.verify(payload, headers);
         console.log("Webhook verified successfully!");
       } catch (e) {
@@ -34,7 +34,7 @@ export const clerkWebhooks = async (req, res) => {
         .json({ success: false, message: "Invalid webhook signature" });
     }
 
-    const { data, type } = req.body;
+    const { data, type } = req.body || {};
 
     console.log(data, type);
 
