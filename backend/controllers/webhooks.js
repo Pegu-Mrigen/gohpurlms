@@ -2,41 +2,43 @@ import { Webhook } from "svix";
 import User from "../models/User.js";
 export const clerkWebhooks = async (req, res) => {
   try {
-
-    const webhookSecret="whsec_ct2NJFEKDzIhl0a3Hq309wt9HcfGbLXh"
+    const webhookSecret = "whsec_ct2NJFEKDzIhl0a3Hq309wt9HcfGbLXh";
     // const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
     const whook = new Webhook(webhookSecret);
     console.log(process.env.CLERK_WEBHOOK_SECRET);
     console.log(req.headers);
 
+    try {
+      const payload = JSON.stringify(req.body);
+      const headers = {
+        "svix-id": req.headers["svix-id"] || "",
+        "svix-timestamp": req.headers["svix-timestamp"] || "",
+        "svix-signature": req.headers["svix-signature"] || "",
+      };
 
-try {
-    const payload = JSON.stringify(req.body);
-    const headers = {
-      "svix-id": req.headers["svix-id"] || "",
-      "svix-timestamp": req.headers["svix-timestamp"] || "",
-      "svix-signature": req.headers["svix-signature"] || ""
-  };
+      if (!headers) {
+        res.json("NO HEADERS");
+      }
 
-  if(!headers){
-    
-    res.json("NO HEADERS")
-
-
-  }
-    whook.verify(payload, headers);
-    console.log('Webhook verified successfully!');
-} catch (error) {
-    console.error('Webhook verification failed:', error.message);
-    return res.status(400).json({ success: false, message: 'Invalid webhook signature' });
-}
-
+      let evt;
+      try {
+        evt = whook.verify(payload, headers);
+        console.log("Webhook verified successfully!");
+      } catch (e) {
+        console.log(e);
+      }
+    } catch (error) {
+      console.error("Webhook verification failed:", error.message);
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid webhook signature" });
+    }
 
     const { data, type } = req.body;
 
     console.log(data, type);
 
-    switch (type) {
+    switch (evt.type) {
       case "user.created": {
         const userData = {
           _id: data.id,
