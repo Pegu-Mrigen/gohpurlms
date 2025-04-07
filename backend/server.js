@@ -14,7 +14,6 @@ app.use(cors());
 
 
 app.get("/", (req, res) => {
-  console.log("first lorem..........");
 
   res.send("API running.......");
 });
