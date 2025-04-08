@@ -2,31 +2,23 @@ import { Webhook } from "svix";
 import User from "../models/User.js";
 export const clerkWebhooks = async (req, res) => {
   try {
-    const webhookSecret ="whsec_Mi7uTaceHhWk5mrKoZjHTgedZOMqKRJy";
-    //const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-    const whook = new Webhook(webhookSecret);
-    console.log(process.env.CLERK_WEBHOOK_SECRET);
-    console.log(req.headers);
+    const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    
 
     try {
       const payload = JSON.stringify(req.body);
       const headers = {
-        "svix-id": req.headers["svix-id"] || "",
-        "svix-timestamp": req.headers["svix-timestamp"] || "",
-        "svix-signature": req.headers["svix-signature"] || "",
+        "svix-id": req.headers["svix-id"],
+        "svix-timestamp": req.headers["svix-timestamp"],
+        "svix-signature": req.headers["svix-signature"],
       };
 
-      if (!headers) {
-        res.json("NO HEADERS");
-      }
+      
 
-      let evt;
-
-      console.log(evt);
+      let evt;     
       try {
-        evt = whook.verify(payload, headers);
+        evt = whook?.verify(payload, headers);
         console.log("Webhook verified successfully!");
-        console.log(evt);
       } catch (e) {
         console.log(e);
         res
@@ -40,10 +32,8 @@ export const clerkWebhooks = async (req, res) => {
         .json({ success: false, message: "Invalid webhook signature" });
     }
 
-    const { data, type } = req.body;
-
-    console.log(data, type);
-    console.log(evt);
+    // const { data, type } = req.body;   
+    const { data } = req.body;   
 
     switch (evt?.type) {
       case "user.created": {
@@ -60,7 +50,7 @@ export const clerkWebhooks = async (req, res) => {
       }
       case "user.updated": {
         const userData = {
-          email: data.email_address[0].email_address,
+          email: data.email_addresses[0].email_address,
           name: data.first_name + " " + data.last_name,
           imageUrl: data.image_url,
         };
