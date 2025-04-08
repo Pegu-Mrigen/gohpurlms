@@ -2,9 +2,9 @@ import { Webhook } from "svix";
 import User from "../models/User.js";
 export const clerkWebhooks = async (req, res) => {
   try {
-    //const webhookSecret = whsec_ct2NJFEKDzIhl0a3Hq309wt9HcfGbLXh;
-    const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-    //const whook = new Webhook(webhookSecret);
+    const webhookSecret ="whsec_ct2NJFEKDzIhl0a3Hq309wt9HcfGbLXh";
+    //const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    const whook = new Webhook(webhookSecret);
     console.log(process.env.CLERK_WEBHOOK_SECRET);
     console.log(req.headers);
 
@@ -31,7 +31,7 @@ export const clerkWebhooks = async (req, res) => {
         console.log(e);
         res
           .status(400)
-          .json({ success: false, message: "verified faillllddd!" });
+          .json({ success: false, message: "verified failldfdfll!" });
       }
     } catch (error) {
       console.error("Webhook verification failed:", error.message);
