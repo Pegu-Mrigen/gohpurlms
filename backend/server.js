@@ -6,7 +6,7 @@ import { clerkWebhooks } from "./controllers/webhooks.js";
 
 const app = express();
 
-await connectDB();
+await connectDB().then(()=>console.log("first db"));
 
 app.use(cors());
 // app.use(express.json());
