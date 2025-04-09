@@ -5,10 +5,14 @@ import connectDB from "./config/mongodb.js";
 import { clerkWebhooks } from "./controllers/webhooks.js";
 import trainerRouter from "./routes/trainerRoute.js";
 import { clerkMiddleware } from "@clerk/express";
+import connectCloudinary from "./config/cloudinary.js";
+import courseRouter from "./routes/courseRoute.js";
 
 const app = express();
 
 await connectDB().then(() => console.log("first db"));
+
+await connectCloudinary();
 
 app.use(cors());
 app.use(clerkMiddleware());
@@ -21,6 +25,7 @@ app.get("/", (req, res) => {
 
 app.post("/clerk", express.json(), clerkWebhooks);
 app.use("/api/trainer", express.json(), trainerRouter);
+app.use("/api/course", express.json(), courseRouter);
 
 const PORT = process.env.PORT || 8000;
 
