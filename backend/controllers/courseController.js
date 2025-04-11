@@ -1,14 +1,15 @@
 import Course from "../models/Course.js";
 
+
 export const getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find({ isPublished: true })
       .select(["-courseContent", "-enrolledStudents"])
       .populate({ path: "trainer" });
-    res.json({ status: true, courses });
+    res.json({ success: true, courses });
   } catch (e) {
     console.log(e);
-    res.json({ status: false, msg: e.message });
+    res.json({ success: false, msg: e.message });
   }
 };
 
@@ -27,10 +28,11 @@ export const getCoursesById = async (req, res) => {
       }
     });
 
-    res.json({ status: true, courseDetails });
+    res.json({ success: true, courseDetails });
   } catch (e) {
     console.log(e);
-    res.json({ status: false, msg: e.message });
+    res.json({ success: false, msg: e.message });
   }
 };
+
 

@@ -81,7 +81,7 @@ export const trainerDashboardData = async (req, res) => {
 
     const r = await Purchase.find({
       courseId: { $in: courseIds },
-      status: "completed",
+      success: "completed",
     });
 
     const totalEarnings = r.reduce((sum, purchase) => sum + purchase.amount, 0);
@@ -130,7 +130,7 @@ export const getEnrolledStudentsData = async (req, res) => {
 
     const purchases = await Purchase.find({
       courseId: { $in: courseIds },
-      status: "completed",
+      success: "completed",
     })
       .populate("userId", "name imgUrl")
       .populate("courseId", "courseTitle");
@@ -144,7 +144,6 @@ export const getEnrolledStudentsData = async (req, res) => {
     res.json({ success: true, enrolledStudents });
   } catch (e) {
     console.log(e);
-    res.json({ success: false, msg:e.message });
-
+    res.json({ success: false, msg: e.message });
   }
 };
