@@ -4,19 +4,41 @@ import { AppContext } from "./../../context/AppContext";
 import { useState } from "react";
 import { dummyDashboardData, assets } from "./../../assets/assets";
 import Loading from "./../../components/learner/Loading";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const Dashboard = () => {
-  const { currency } = useContext(AppContext);
-  const [dashboardData, setdashboardData] = useState(null);
+  const { currency, backendUrl, getToken, isTrainer } = useContext(AppContext);
+  const [dashboardDetails, setDashboardDetails] = useState(null);
 
-  const fetchDashboardData = async () => {
-    setdashboardData(dummyDashboardData);
+  const fetchDashboardDetails = async () => {
+    // setdashboardData(dummyDashboardData);
+    try {
+      const token = getToken();
+
+      const { data } = await axios.get(backendUrl + "/api/trainer/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (data.success) {
+        setDashboardDetails(data.dashboardDetails);
+      } else {
+        toast.error(data.msg);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error(e.message);
+    }
   };
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
-  return dashboardData ? (
+    if (isTrainer) {
+      fetchDashboardDetails();
+    }
+  }, [isTrainer]);
+  return dashboardDetails ? (
     <div className="min-h-screen flex flex-col items-start justify-between gap-8 md:p-8 md:pb-0 p-4 pt-8 pb-0">
       <div className="space-y-5">
         <div className="flex flex-wrap gap-5 items-center">
@@ -24,7 +46,7 @@ const Dashboard = () => {
             <img src={assets.patients_icon} alt="" />
             <div className="">
               <p className="text-2xl font-medium to-gray-600">
-                {dashboardData.enrolledStudentsData.length}
+                {dashboardDetails.enrolledStudentsData.length}
               </p>
               <p className="text-base text-gray-500">Total Enrollments</p>
             </div>
@@ -33,7 +55,7 @@ const Dashboard = () => {
             <img src={assets.appointment_icon} alt="" />
             <div className="">
               <p className="text-2xl font-medium to-gray-600">
-                {dashboardData.totalCourses}
+                {dashboardDetails.totalCourses}
               </p>
               <p className="text-base text-gray-500">Total Courses</p>
             </div>
@@ -42,7 +64,7 @@ const Dashboard = () => {
             <img src={assets.earning_icon} alt="" />
             <div className="">
               <p className="text-2xl font-medium to-gray-600">
-                {dashboardData.totalEarnings}
+                {dashboardDetails.totalEarnings}
               </p>
               <p className="text-base text-gray-500">Total Earnings</p>
             </div>
@@ -63,7 +85,7 @@ const Dashboard = () => {
               </thead>
 
               <tbody className="text-sm to-gray-500">
-                {dashboardData.enrolledStudentsData.map((item, i) => (
+                {dashboardDetails.enrolledStudentsData.map((item, i) => (
                   <tr className="border-b border-gray-600/20">
                     <td className="px-4 py-3 text-center hidden sm:table-cell">
                       {i + 1}

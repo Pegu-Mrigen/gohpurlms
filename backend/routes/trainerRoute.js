@@ -20,7 +20,7 @@ trainerRouter.post(
 );
 trainerRouter.get("/courses", protectTrainer, getTrainerCourses);
 trainerRouter.get(
-  "/enrolled-students",
+  "/enrolled-learners",
   protectTrainer,
   getEnrolledStudentsData
 );

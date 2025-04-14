@@ -2,6 +2,7 @@ import { clerkClient } from "@clerk/express";
 import Course from "../models/Course.js";
 import { v2 as cloudinary } from "cloudinary";
 import Purchase from "../models/Purchase.js";
+import User from "./../models/User.js";
 
 export const updateRoleToTrainer = async (req, res) => {
   try {
@@ -22,7 +23,7 @@ export const updateRoleToTrainer = async (req, res) => {
 
 export const addCourse = async (req, res) => {
   try {
-    const { courseData } = req.body;
+    const { courseDetails } = req.body;
     const imgFile = req.file;
     const trainerId = req.auth.userId;
 
@@ -30,7 +31,7 @@ export const addCourse = async (req, res) => {
       return res.json({ success: false, msg: "Thumbnail Not Attached" });
     }
 
-    const parsedCourseData = await JSON.parse(courseData);
+    const parsedCourseData = await JSON.parse(courseDetails);
 
     parsedCourseData.trainer = trainerId;
     const newCourse = await Course.create(parsedCourseData);

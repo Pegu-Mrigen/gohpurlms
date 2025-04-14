@@ -8,6 +8,8 @@ import { assets } from "./../../assets/assets";
 import humanizeDuration from "humanize-duration";
 import Footer from "./../../components/learner/Footer";
 import YouTube from "react-youtube";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -15,7 +17,7 @@ const CourseDetails = () => {
   const [courseDetails, setCourseDetails] = useState(null);
   const [openSections, setOpenSections] = useState({});
   const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
-  const [playerData, setPlayerData] = useState(null);
+  const [playerDetails, setplayerDetails] = useState(null);
 
   const {
     allCourses,
@@ -24,18 +26,80 @@ const CourseDetails = () => {
     calculateCourseDuration,
     calculateTotalLectures,
     currency,
+    backendUrl,
+    userDetails,
+    getToken,
   } = useContext(AppContext);
 
+  // const fetchCourseDetails = async () => {
+  //   const courseDetailsFetched = allCourses?.find(
+  //     (course) => course._id === id
+  //   );
+  //   setCourseDetails(courseDetailsFetched);
+  // };
   const fetchCourseDetails = async () => {
-    const courseDetailsFetched = allCourses?.find(
-      (course) => course._id === id
-    );
-    setCourseDetails(courseDetailsFetched);
+    try {
+      const { data } = await axios.get(backendUrl + "/api/course/" + id);
+
+      if (data.success) {
+        setCourseDetails(data.courseDetails);
+      } else {
+        toast.error(data.msg);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error(e.msg);
+    }
   };
 
+  // useEffect(() => {
+  //   fetchCourseDetails();
+  // }, [allCourses]);
+
+  const enrollCourse = async () => {
+    try {
+      if (!userDetails) {
+        return toast.warn("Login to Enroll");
+      }
+      if (isAlreadyEnrolled) {
+        return toast.warn("Already Enrolled");
+      }
+
+      const token = await getToken();
+
+      const { data } = await axios.post(
+        backendUrl + "/api/user/purchase",
+        {
+          courseId: courseDetails._id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (data.success) {
+        const { session_url } = data;
+
+        window.location.replace(session_url);
+      } else {
+        toast.error(data.msg);
+      }
+    } catch (e) {
+      toast.error(e.message);
+    }
+  };
   useEffect(() => {
     fetchCourseDetails();
-  }, [allCourses]);
+  }, []);
+  useEffect(() => {
+    if (userDetails && courseDetails) {
+      setIsAlreadyEnrolled(
+        userDetails.enrolledCourses.includes(courseDetails._id)
+      );
+    }
+  }, [userDetails, courseDetails]);
 
   // console.log(courseDetails);
   // console.log(allCourses);
@@ -141,7 +205,7 @@ const CourseDetails = () => {
                               {lecture.isPreviewFree && (
                                 <p
                                   onClick={() =>
-                                    setPlayerData({
+                                    setplayerDetails({
                                       videoId: lecture.lectureUrl
                                         .split("/")
                                         .pop(),
@@ -181,9 +245,9 @@ const CourseDetails = () => {
           </div>
         </div>
         <div className="max-w-course-card z-10 shadow-custom-card rounded-t md:rounded-none overflow-hidden bg-white min-w-[300px] sm:min-w-[420px]">
-          {playerData ? (
+          {playerDetails ? (
             <YouTube
-              videoId={playerData.videoId}
+              videoId={playerDetails.videoId}
               options={{ playerVars: { autoplay: 1 } }}
               iframeClassName="w-full aspect-video"
             />
@@ -228,7 +292,10 @@ const CourseDetails = () => {
                 <p className="">{calculateRating(courseDetails)} lessons</p>
               </div>
             </div>
-            <button className="md:mt-6 mt-4 w-full py-3 rounded bg-blue-500 text-white font-medium">
+            <button
+              onClick={enrollCourse}
+              className="md:mt-6 mt-4 w-full py-3 rounded bg-blue-500 text-white font-medium"
+            >
               {isAlreadyEnrolled ? "Already Enrolled" : "Enroll Now"}
             </button>
             <div className="pt-6">

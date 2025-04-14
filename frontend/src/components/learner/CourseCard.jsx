@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 
 const CourseCard = ({ course }) => {
   const { currency, calculateRating } = useContext(AppContext);
+
+
+  console.log(course)
   return (
     <Link
       to={"/course/" + course._id}
@@ -13,9 +16,9 @@ const CourseCard = ({ course }) => {
     >
       <img src={course.courseThumbnail} alt="" className="w-full" />
       <div className="p-3 text-left">
-        <h3 className="text-base font-semibold">{course.courseTitle}</h3>
+        <h3 className="text-base font-semibold">{course?.courseTitle}</h3>
         {/* <p className="text-gray-500">{course?.trainer?.name}</p> */}
-        <p className="text-gray-500">Trainer Name</p>
+        <p className="text-gray-500">{course?.trainer?.name}</p>
         <div className="flex items-center space-x-2">
           <p className="">{calculateRating(course)}</p>
           <div className="flex">

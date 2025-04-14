@@ -1,46 +1,101 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AppContext } from "../../context/AppContext";
 import { Line } from "rc-progress";
-import Footer from './../../components/learner/Footer';
+import Footer from "./../../components/learner/Footer";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const MyEnrollments = () => {
-  const { enrolledCourses, calculateCourseDuration, navigate } =
-    useContext(AppContext);
+  const {
+    enrolledCourses,
+    calculateCourseDuration,
+    navigate,
+    userDetails,
+    fetchUserEnrolledCourses,
+    backendUrl,
+    getToken,
+    calculateTotalLectures,
+  } = useContext(AppContext);
 
-  const [progressArray, setProgressArray] = useState([
-    {
-      lectureCompleted: 2,
-      totalLectures: 4,
-    },
-    {
-      lectureCompleted: 3,
-      totalLectures: 5,
-    },
-    {
-      lectureCompleted: 2,
-      totalLectures: 6,
-    },
-    {
-      lectureCompleted: 3,
-      totalLectures: 4,
-    },
-    {
-      lectureCompleted: 2,
-      totalLectures: 7,
-    },
-    {
-      lectureCompleted: 5,
-      totalLectures: 5,
-    },
-    {
-      lectureCompleted: 2,
-      totalLectures: 7,
-    },
-    {
-      lectureCompleted: 5,
-      totalLectures: 5,
-    },
-  ]);
+  // const [progressArray, setProgressArray] = useState([
+  //   {
+  //     lectureCompleted: 2,
+  //     totalLectures: 4,
+  //   },
+  //   {
+  //     lectureCompleted: 3,
+  //     totalLectures: 5,
+  //   },
+  //   {
+  //     lectureCompleted: 2,
+  //     totalLectures: 6,
+  //   },
+  //   {
+  //     lectureCompleted: 3,
+  //     totalLectures: 4,
+  //   },
+  //   {
+  //     lectureCompleted: 2,
+  //     totalLectures: 7,
+  //   },
+  //   {
+  //     lectureCompleted: 5,
+  //     totalLectures: 5,
+  //   },
+  //   {
+  //     lectureCompleted: 2,
+  //     totalLectures: 7,
+  //   },
+  //   {
+  //     lectureCompleted: 5,
+  //     totalLectures: 5,
+  //   },
+  // ]);
+  const [progressArray, setProgressArray] = useState([]);
+
+  const getCourseProgress = async () => {
+    try {
+      const token = await getToken();
+      const tempProgressArray = await Promise.all(
+        enrolledCourses.map(async (course) => {
+          const { data } = await axios.post(
+            `${backendUrl}/api/user/get-course-progress`,
+            { courseId: course._id },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          let totalLectures = calculateTotalLectures(course);
+
+          const lectureCompleted = data.progressDetails
+            ? data.progressDetails.lectureCompleted.length
+            : 0;
+
+          return { totalLectures, lectureCompleted };
+        })
+      );
+
+      setProgressArray(tempProgressArray);
+    } catch (e) {
+      console.log(e);
+      toast.error(e.message);
+    }
+  };
+
+  useEffect(() => {
+    if (userDetails) {
+      fetchUserEnrolledCourses();
+    }
+  }, [userDetails]);
+
+  useEffect(() => {
+    if (enrolledCourses.length > 0) {
+      getCourseProgress();
+    }
+  }, [enrolledCourses]);
   return (
     <>
       <div

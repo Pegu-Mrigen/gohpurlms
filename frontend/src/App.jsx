@@ -13,12 +13,15 @@ import MyCourses from "./pages/trainer/MyCourses";
 import LearnersEnrolled from "./pages/trainer/LearnersEnrolled";
 import Navbar from "./components/learner/Navbar";
 import "quill/dist/quill.snow.css";
+import { ToastContainer } from 'react-toastify';
+
 
 
 const App = () => {
   const isTrainerRoute = useMatch("/trainer/*");
   return (
     <div className="text-default  min-h-screen bg-white">
+      <ToastContainer />
       {!isTrainerRoute && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />

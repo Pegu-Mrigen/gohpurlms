@@ -1,20 +1,50 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { dummyStudentEnrolled } from "./../../assets/assets";
 import { useEffect } from "react";
 import Loading from "./../../components/learner/Loading";
+import { AppContext } from "./../../context/AppContext";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const LearnersEnrolled = () => {
   // const { currency, allCourses } = useContext(AppContext);
+
+  const { backendUrl, getToken, isTrainer } = useContext(AppContext);
+
   const [enrolledLearners, setEnrolledLearners] = useState(null);
 
   const fectchEnrolledLearners = async () => {
-    setEnrolledLearners(dummyStudentEnrolled);
+    // setEnrolledLearners(dummyStudentEnrolled);
+
+    try {
+      const token = getToken();
+
+      const { data } = await axios.get(
+        backendUrl + "/api/trainer/enrolled-learners",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (data.success) {
+        setEnrolledLearners(data.entrolledLearners.reverse());
+      } else {
+        toast.error(data.msg);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error(e.message);
+    }
   };
 
   useEffect(() => {
-    fectchEnrolledLearners();
-  }, []);
+    if (isTrainer) {
+      fectchEnrolledLearners();
+    }
+  }, [isTrainer]);
   return enrolledLearners ? (
     <div className="min-h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0">
       <div className="flex flex-col items-center max-w-4xl w-full overflow-hidden rounded-md bg-white border border-gray-500/20">
